@@ -4,7 +4,7 @@ This is a small, sub 1 hour project to guess Beat Saber mapper/map based on the 
 
 ## What does the name mean?
 
-When asking my friends "What should I call this?" Bellus replied - not having heard the question correctly - asked "Coco What?". That was the best suggestion so we went with that.
+When asking my friends "What should I call this?" Bellus - not having heard the question correctly - asked "Coco What?". That was the best suggestion so we went with that.
 
 ## Prerequisites
 
