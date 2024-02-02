@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Coco What?!</title>
+    <style>
+        #answer {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="arcviewer" style="width: 100%"></div>
+    <div id="answer" style="width: 100%"></div>
+    <button id="showAnswerBtn">Show answer</button>
+    <button id="nextMapBtn" style="display: none">Next</button>
+    <div id="counter"></div>
+</body>
+<script>
+
+    document.addEventListener("DOMContentLoaded", async () => {
+        const mapsFetch = await fetch("/maps.json");
+        const maps = await mapsFetch.json();
+        const mappers = Array.from(
+            new Set(
+                maps
+                    .map((x) => x.mapperName)
+            )
+        );
+
+        const totalCount = maps.filter((x) =>
+            mappers.includes(x.mapperName)
+        ).length;
+
+        const seenMaps = new Set();
+        const updateCounter = () => {
+            document.getElementById(
+                "counter"
+            ).innerHTML = `${seenMaps.size} / ${totalCount} maps guessed.`;
+        };
+
+        updateCounter();
+
+        const showMapRandomMap = () => {
+            let foundNextMap = false;
+            let mapsOfMapper = []
+            while (mapsOfMapper.length === 0) {
+                if (mappers.length === 0) {
+                    document.getElementById("arcviewer").innerHTML = "No maps found.";
+                    return;
+                }
+
+                const randomMapper =
+                    mappers[Math.floor(Math.random() * mappers.length)];
+                
+                mapsOfMapper = maps.filter(
+                    (x) => x.mapperName === randomMapper && !seenMaps.has(x.mapId)
+                );
+
+                if(mapsOfMapper.length <= 1) {
+                    mappers = mappers.filter(x => x !== randomMapper);
+                }
+            }
+
+            const randomMapIndex = Math.floor(Math.random() * mapsOfMapper.length);
+            const randomMapOfMapper = mapsOfMapper[randomMapIndex];
+            seenMaps.add(randomMapOfMapper.mapId);
+
+            const mapUrl = `${window.location.origin}/maps/${randomMapOfMapper.mapId}.zip`;
+
+            document.getElementById(
+                "arcviewer"
+            ).innerHTML = `<iframe style="width: 100%; height: 720px;" src="https://allpoland.github.io/ArcViewer/?url=${mapUrl}" allow="fullscreen"></iframe>`;
+            document.getElementById(
+                "answer"
+            ).innerHTML = `By ${randomMapOfMapper.mapperName}. <a href="https://beatsaver.com/maps/${randomMapOfMapper.mapId}" target="_blank">See it on BeatSaver.</a>`;
+        };
+
+        showMapRandomMap();
+
+        document.getElementById("showAnswerBtn").addEventListener("click", () => {
+            updateCounter();
+            document.getElementById("answer").style.display = "block";
+            document.getElementById("showAnswerBtn").style.display = "none";
+            document.getElementById("nextMapBtn").style.display = "inline";
+        });
+
+        document.getElementById("nextMapBtn").addEventListener("click", () => {
+            showMapRandomMap();
+            document.getElementById("answer").style.display = "none";
+            document.getElementById("showAnswerBtn").style.display = "inline";
+            document.getElementById("nextMapBtn").style.display = "none";
+        });
+    });
+</script>
+
+</html>
